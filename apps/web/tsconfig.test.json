@@ -1,0 +1,12 @@
+{
+  // Les tests tournent sous Node, pas dans le navigateur. Leur donner les types
+  // de Node dans le tsconfig de l'appli ferait dériver le typage du DOM
+  // (`setTimeout` rendrait un `NodeJS.Timeout`), d'où ce second projet.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    // `node --experimental-strip-types` exige l'extension .ts à l'import.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.test.ts", "src/store"]
+}

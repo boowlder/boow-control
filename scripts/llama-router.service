@@ -1,0 +1,23 @@
+[Unit]
+Description=Routeur llama-server — plusieurs cerveaux locaux chargés à la demande
+After=network.target
+
+[Service]
+Type=simple
+Environment=HOME=/home/USER
+Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:/usr/lib/wsl/lib
+WorkingDirectory=/home/USER/llama.cpp
+# --models-max 1 : UN SEUL gros modèle en VRAM à la fois. Ne pas augmenter
+# sans revérifier la VRAM : deux cerveaux simultanés ne tiennent pas en 16 Go.
+# --sleep-idle-seconds 300 : après cinq minutes sans question, le cerveau rend
+# la mémoire vidéo (14,8 Go -> 2 Go, mesuré le 22/07/2026) et se recharge tout
+# seul à la question suivante (29 s, contre 74 s à froid).
+# Cinq minutes est un compromis : assez long pour ne jamais couper une session
+# de travail, assez court pour libérer la carte peu après qu'on l'ait quittée.
+# Pour libérer tout de suite : `boow off` ou `boow veille`.
+ExecStart=/home/USER/llama.cpp/build/bin/llama-server --models-preset /home/USER/models/router.ini --models-max 1 --sleep-idle-seconds 300 --host 127.0.0.1 --port 8080
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

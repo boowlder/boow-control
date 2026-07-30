@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+.DS_Store
+.vite/
+
+# Le gabarit d'exemple, lui, est versionné :
+!.env.example

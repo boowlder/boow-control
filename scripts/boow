@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# L'interrupteur de boow control.
+#
+#   boow on       tout démarrer
+#   boow off      tout arrêter (rend la carte graphique tout de suite)
+#   boow veille   garder le cockpit, rendre juste la mémoire vidéo
+#   boow etat     où en est-on
+#
+# Le cerveau rend déjà la carte tout seul après cinq minutes sans question
+# (--sleep-idle-seconds dans llama-router.service). Ce script sert quand on ne
+# veut pas attendre : avant de lancer un jeu, par exemple.
+
+set -uo pipefail
+
+SERVICES=(llama-router.service chrome-cdp.service boow-control.service)
+
+vert()  { printf '\033[32m%s\033[0m\n' "$*"; }
+gris()  { printf '\033[90m%s\033[0m\n' "$*"; }
+jaune() { printf '\033[33m%s\033[0m\n' "$*"; }
+
+vram() {
+  local smi
+  for smi in nvidia-smi /usr/lib/wsl/lib/nvidia-smi; do
+    if command -v "$smi" >/dev/null 2>&1 || [ -x "$smi" ]; then
+      "$smi" --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null \
+        | awk -F', ' 'NR==1 {printf "%.1f/%.1f Go", $1/1024, $2/1024}'
+      return
+    fi
+  done
+  printf 'inconnue'
+}
+
+# `chrome-cdp` est un service SYSTÈME : l'arrêter demande un droit que ce script
+# n'a pas. Les deux autres appartiennent à l'utilisateur et s'arrêtent librement. On
+# note l'échec pour le dire, plutôt que de laisser croire que tout est éteint.
+RATE=''
+agir() {
+  local action=$1 svc
+  RATE=''
+  for svc in "${SERVICES[@]}"; do
+    if [ "$svc" = 'chrome-cdp.service' ]; then
+      sudo -n systemctl "$action" "$svc" 2>/dev/null || RATE="$svc"
+    else
+      systemctl --user "$action" "$svc" 2>/dev/null
+    fi
+  done
+}
+
+etat_un() {
+  local svc=$1
+  if [ "$svc" = 'chrome-cdp.service' ]; then
+    systemctl is-active "$svc" 2>/dev/null
+  else
+    systemctl --user is-active "$svc" 2>/dev/null
+  fi
+}
+
+etat() {
+  local svc s allume=0
+  for svc in "${SERVICES[@]}"; do
+    s=$(etat_un "$svc")
+    [ "$s" = 'active' ] && allume=$((allume + 1))
+    printf '  %-24s ' "${svc%.service}"
+    [ "$s" = 'active' ] && vert 'allumé' || gris "${s:-éteint}"
+  done
+  echo
+  echo "  mémoire vidéo            $(vram)"
+  [ "$allume" -eq "${#SERVICES[@]}" ] && return 0 || return 1
+}
+
+case "${1:-etat}" in
+  on|start|allume)
+    agir start
+    sleep 2
+    vert 'Boow allumé.'
+    echo '  cockpit : http://localhost:8788'
+    echo
+    etat
+    ;;
+
+  off|stop|eteint)
+    agir stop
+    sleep 2
+    jaune 'Boow éteint — la carte graphique est libre.'
+    echo
+    etat
+    if [ -n "$RATE" ]; then
+      echo
+      gris "  Chrome CDP est un service système : il reste allumé. Il ne prend"
+      gris "  pas de mémoire vidéo. Pour qu'il suive l'interrupteur, une fois :"
+      gris "    echo \"<votre-utilisateur> ALL=(root) NOPASSWD: /usr/bin/systemctl start chrome-cdp.service, /usr/bin/systemctl stop chrome-cdp.service\" | sudo tee /etc/sudoers.d/boow-chrome"
+    fi
+    ;;
+
+  veille|libere)
+    # Redémarrer le routeur vide la mémoire vidéo tout de suite ; il rechargera
+    # le cerveau à la prochaine question. Le cockpit, lui, ne bouge pas.
+    systemctl --user restart llama-router.service
+    sleep 3
+    jaune 'Mémoire vidéo rendue. Le cockpit reste ouvert.'
+    echo "  mémoire vidéo            $(vram)"
+    ;;
+
+  etat|status|'')
+    etat
+    ;;
+
+  *)
+    echo "Usage : boow [on|off|veille|etat]"
+    exit 1
+    ;;
+esac

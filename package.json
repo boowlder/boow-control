@@ -1,0 +1,20 @@
+{
+  "name": "boow-control",
+  "private": true,
+  "version": "0.1.0",
+  "description": "boow control — cockpit d'orchestration d'agents IA",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:daemon": "pnpm --filter @boow/daemon run dev",
+    "dev:web": "pnpm --filter @boow/web run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm --filter @boow/daemon run start",
+    "serve": "pnpm run build && pnpm run start",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "recette": "node scripts/recette/recette.mjs"
+  }
+}

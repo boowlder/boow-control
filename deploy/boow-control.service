@@ -1,0 +1,17 @@
+[Unit]
+Description=boow control — cockpit d'orchestration d'agents IA
+After=network.target
+
+[Service]
+Type=simple
+Environment=HOME=/home/USER
+Environment=NODE_ENV=production
+# PATH complet : node24 (runtime) + .local/bin (hermes) + .hermes/node/bin (claude)
+Environment=PATH=/home/USER/.node24/bin:/home/USER/.local/bin:/home/USER/.hermes/node/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/home/USER/projects/boow-control
+ExecStart=/home/USER/.node24/bin/pnpm --filter @boow/daemon run start
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

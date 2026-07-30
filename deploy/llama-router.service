@@ -1,0 +1,17 @@
+[Unit]
+Description=Routeur llama-server — plusieurs cerveaux locaux chargés à la demande
+After=network.target
+
+[Service]
+Type=simple
+Environment=HOME=/home/USER
+Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:/usr/lib/wsl/lib
+WorkingDirectory=/home/USER/llama.cpp
+# --models-max 1 : UN SEUL gros modèle en VRAM à la fois. Ne pas augmenter
+# sans revérifier la VRAM : deux cerveaux simultanés ne tiennent pas en 16 Go.
+ExecStart=/home/USER/llama.cpp/build/bin/llama-server --models-preset /home/USER/models/router.ini --models-max 1 --host 127.0.0.1 --port 8080
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,11 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+allowBuilds:
+  esbuild: true
+  node-pty: true
+
+# Surcharges de sécurité : force une version corrigée d'une dépendance indirecte.
+overrides:
+  # fast-uri < 3.1.3 : confusion d'hôte (via fastify > ajv). Corrigé en 3.1.3.
+  fast-uri: ^3.1.3

@@ -1,0 +1,9 @@
+{
+  // `node --experimental-strip-types` exige l'extension .ts à l'import ; le
+  // reste du daemon importe sans extension. D'où ce projet séparé.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.test.ts", "src/agents/hermes-policy.ts", "src/probes/gpu.ts", "src/routes/repertoire-parse.ts"]
+}

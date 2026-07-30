@@ -1,0 +1,374 @@
+/* Tailwind v4 : plus de fichier de config JS, le thème vit ici.
+   `source(none)` coupe la détection automatique — on déclare nos sources
+   à la main, pour que le scan ne parte pas explorer tout le dépôt. */
+@import 'tailwindcss' source(none);
+@import 'tw-animate-css';
+@source '../index.html';
+@source './**/*.{ts,tsx}';
+
+/* ============================================================================
+   boow control — design system
+   Liquid glass partout + fond dynamique (vagues) en dessous.
+   ========================================================================== */
+
+/* `inline` : les utilitaires reçoivent `rgb(var(--c-…))` au lieu d'une copie
+   figée de la couleur. C'est ce qui permet à `.theme-light` de tout repeindre
+   en redéfinissant une poignée de variables, sans recompiler quoi que ce soit. */
+@theme inline {
+  --color-base: rgb(var(--c-base));
+  --color-panel: rgb(var(--c-panel));
+  --color-panel2: rgb(var(--c-panel2));
+  --color-line: rgb(var(--c-line));
+  --color-ink: rgb(var(--c-ink));
+  --color-muted: rgb(var(--c-muted));
+  --color-brand: rgb(var(--c-brand));
+  --color-brand2: rgb(var(--c-brand2));
+  --color-onbrand: rgb(var(--c-on-brand));
+  --color-ok: rgb(var(--c-ok));
+  --color-warn: rgb(var(--c-warn));
+  --color-danger: rgb(var(--c-danger));
+
+  /* ── Le vocabulaire shadcn/ui, branché sur la palette ci-dessus ──
+     Leurs composants disent `bg-background`, `text-muted-foreground`,
+     `border-border`. On leur donne ces noms plutôt que de récrire chaque
+     composant collé : un `pnpm dlx shadcn add dialog` ressort déjà aux
+     couleurs de Boow, sans retouche. */
+  --color-background: rgb(var(--c-base));
+  --color-foreground: rgb(var(--c-ink));
+  --color-card: rgb(var(--c-panel));
+  --color-card-foreground: rgb(var(--c-ink));
+  --color-popover: rgb(var(--c-panel));
+  --color-popover-foreground: rgb(var(--c-ink));
+  --color-primary: rgb(var(--c-brand));
+  --color-primary-foreground: rgb(var(--c-on-brand));
+  --color-secondary: rgb(var(--c-panel2));
+  --color-secondary-foreground: rgb(var(--c-ink));
+  --color-muted-foreground: rgb(var(--c-muted));
+  /* ⚠ `muted` est le seul nom qui ne veut pas dire la même chose des deux
+     côtés : chez nous `text-muted` = le gris du texte secondaire, chez shadcn
+     `bg-muted` = une surface discrète. Notre sens gagne (il est déjà partout
+     dans le code) ; dans un composant collé, remplacer `bg-muted` par
+     `bg-panel2`. C'est la seule retouche manuelle à prévoir. */
+  /* `accent` chez shadcn = la surface de survol, pas une couleur vive.
+     Le cyan qui portait ce nom en v3 n'était utilisé nulle part. */
+  --color-accent: rgb(var(--c-panel2));
+  --color-accent-foreground: rgb(var(--c-ink));
+  --color-destructive: rgb(var(--c-danger));
+  --color-destructive-foreground: rgb(var(--c-on-brand));
+  --color-border: rgb(var(--c-line));
+  --color-input: rgb(var(--c-line));
+  --color-ring: rgb(var(--c-brand));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --shadow-card: var(--glass-shadow);
+  --shadow-pop: var(--shadow-pop-v);
+  --shadow-glow: var(--shadow-glow-v);
+  --shadow-glow-sm: 0 0 0 1px rgb(var(--c-brand) / 0.4);
+
+  --animate-breathe: breathe 2.4s ease-in-out infinite;
+  --animate-popin: popin 300ms cubic-bezier(0.2, 0.8, 0.3, 1.2);
+  --animate-slideup: slideup 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-fadein: fadein 260ms ease-out;
+  /* float / scan / ticker / sweep : déclarées en v3, jamais utilisées nulle part.
+     Supprimées plutôt que traînées. */
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes popin {
+    0% {
+      transform: scale(0.7);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes slideup {
+    0% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes fadein {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
+/* Ce que la v4 change sous les pieds et qu'on remet comme avant :
+   la bordure par défaut passe à `currentColor`, le texte d'invite aussi.
+   Sans ça, 109 `border` nus dans le code viraient à la couleur du texte. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: rgb(var(--c-line));
+  }
+  ::placeholder {
+    color: rgb(var(--c-muted));
+  }
+}
+
+/* Pas de rubrique « image de fond » dans le thème v4 : c'est un utilitaire. */
+@utility bg-grad-brand {
+  background-image: linear-gradient(180deg, rgb(var(--c-brand)), rgb(var(--c-brand) / 0.86));
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Rayon de référence de shadcn. 0.5rem redonne exactement l'échelle
+     rounded-* par défaut de Tailwind — rien ne bouge dans l'existant. */
+  --radius: 0.5rem;
+
+  /* Charbon chaud, pas bleu nuit : #17161A tire vers le brun, ce qui repose
+     l'œil sur une interface qu'on regarde des heures. Le texte suit —
+     #EDE9E4 plutôt que du blanc pur, qui « brille » sur fond sombre. */
+  --c-base: 23 22 26; /* nuit */
+  --c-panel: 31 29 34; /* panneau — surfaces posées dessus */
+  --c-panel2: 39 36 43; /* survol, pastilles, bulles de l'utilisateur */
+  --c-line: 48 45 54; /* trait */
+  --c-ink: 237 233 228; /* encre */
+  --c-muted: 154 151 162; /* sourdine */
+
+  /* Une couleur par mode. Ce n'est pas décoratif : la teinte dit d'un coup
+     d'œil où l'on est, donc ce que ça coûte. `--c-brand` est réaffecté à
+     l'ouverture du mode — voir `accentDuMode` côté React. */
+  --c-local: 127 168 143; /* sauge — mode normal, gratuit */
+  --c-operation: 199 154 78; /* or — mode opération, au budget */
+  --c-claude: 200 123 94; /* terre cuite — ClaudeCODE, facturé */
+
+  --c-brand: var(--c-local);
+  --c-brand2: 199 154 78;
+  --c-accent: 127 168 143;
+  --c-on-brand: 23 22 26;
+
+  --c-ok: 127 168 143;
+  --c-warn: 199 154 78;
+  --c-danger: 196 97 79;
+
+  /* Liquid glass — verres translucides au-dessus du fond animé */
+  --glass-bg: linear-gradient(135deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02) 42%, rgb(255 255 255 / 0.05));
+  --glass-border: rgb(255 255 255 / 0.14);
+  --glass-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.22), inset 0 0 0 1px rgb(255 255 255 / 0.04),
+    inset 0 -14px 28px -18px rgb(0 0 0 / 0.55), 0 18px 44px -18px rgb(0 0 0 / 0.6);
+  --glass-blur: blur(16px) saturate(180%);
+
+  /* Suffixe `-v` : sans lui, ces noms entreraient en collision avec la
+     rubrique `--shadow-*` du thème Tailwind v4, qui les lit juste au-dessus. */
+  --shadow-pop-v: inset 0 1px 0 0 rgb(255 255 255 / 0.26), 0 30px 70px -26px rgb(0 0 0 / 0.8);
+  --shadow-glow-v: 0 0 0 1px rgb(var(--c-brand) / 0.4), 0 0 30px -8px rgb(var(--c-brand) / 0.5);
+}
+
+.theme-light {
+  color-scheme: light;
+  /* Papier chaud, mêmes teintes assombries : le cockpit reste reconnaissable
+     d'un thème à l'autre, seul le contraste s'inverse. */
+  --c-base: 243 240 235;
+  --c-panel: 251 249 246;
+  --c-panel2: 234 230 224;
+  --c-line: 216 210 201;
+  --c-ink: 27 25 29;
+  --c-muted: 95 92 102;
+
+  --c-local: 79 122 98;
+  --c-operation: 150 108 34;
+  --c-claude: 166 83 58;
+
+  --c-brand: var(--c-local);
+  --c-brand2: 150 108 34;
+  --c-accent: 79 122 98;
+  --c-on-brand: 251 249 246;
+
+  --c-ok: 79 122 98;
+  --c-warn: 150 108 34;
+  --c-danger: 160 58 44;
+
+  --glass-bg: linear-gradient(135deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.5) 42%, rgb(255 255 255 / 0.62));
+  --glass-border: rgb(255 255 255 / 0.7);
+  --glass-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.9), 0 18px 40px -22px rgb(15 23 42 / 0.3);
+  --shadow-pop-v: inset 0 1px 0 0 rgb(255 255 255 / 0.95), 0 28px 56px -24px rgb(15 23 42 / 0.34);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(var(--c-base));
+  color: rgb(var(--c-ink));
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01', 'tnum';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.14);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--c-muted) / 0.4);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: rgb(var(--c-brand) / 0.32);
+  color: rgb(var(--c-ink));
+}
+:focus-visible {
+  outline: 1.5px solid rgb(var(--c-brand) / 0.7);
+  outline-offset: 2px;
+}
+
+@layer components {
+  /* Liquid glass — surface translucide qui laisse passer le fond animé */
+  .surface,
+  .glass,
+  .liquid {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+  /* Reflet liquide en haut de chaque verre */
+  .surface::after,
+  .liquid::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 45%;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.12), transparent);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .kicker {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--c-muted));
+    font-weight: 500;
+  }
+  .tnum {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .topline {
+    box-shadow: inset 0 1px 0 0 rgb(var(--c-brand) / 0.6), var(--glass-shadow);
+  }
+  .text-gradient,
+  .text-gradient-cyber {
+    color: rgb(var(--c-brand));
+  }
+  .sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Rendu markdown des réponses d'agent */
+  .md strong {
+    font-weight: 700;
+  }
+  .md em {
+    font-style: italic;
+  }
+  .md-h {
+    font-weight: 600;
+    margin: 0.45em 0 0.2em;
+  }
+  .md-link {
+    color: rgb(var(--c-brand));
+    text-decoration: underline;
+  }
+  .md-code {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 0.88em;
+    background: rgb(255 255 255 / 0.1);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+  }
+  .md-pre {
+    margin: 0.55em 0;
+    padding: 0.7em 0.85em;
+    background: rgb(0 0 0 / 0.38);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .md-pre code {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 0.85em;
+    white-space: pre;
+    color: rgb(var(--c-ink));
+  }
+}
+
+@keyframes spinY {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@layer utilities {
+  .grid-tech {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
