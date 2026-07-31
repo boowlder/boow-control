@@ -15,7 +15,7 @@ export type AgentProvider =
 
 /**
  * Les états animés pilotés par le back. L'ordre n'a pas d'importance,
- * mais la liste fait foi (le front mappe chaque état à un badge + une anim Spline).
+ * mais la liste fait foi (le front mappe chaque état à un badge).
  */
 export const AGENT_STATES = [
   'idle',

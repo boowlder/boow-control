@@ -113,8 +113,6 @@ export type ServerEvent =
    *  résumer l'ancien pour repartir léger — le front l'annonce dans le fil. */
   | { t: 'agent.context'; id: AgentId; used: number; max: number; compacted?: boolean; ts: number }
   | { t: 'agent.delegation'; from: AgentId; to: AgentId; taskId?: string; label?: string }
-  | { t: 'agent.spawn'; parent: AgentId; child: AgentMeta; ttlMs?: number }
-  | { t: 'agent.despawn'; id: AgentId }
   | { t: 'task.update'; task: Task }
   | { t: 'agent.config'; id: AgentId; config: ClaudeAgentConfig }
   | { t: 'agent.artifact'; id: AgentId; name: string; content: string; ts: number }

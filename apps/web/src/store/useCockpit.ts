@@ -95,24 +95,12 @@ export interface NotificationItem {
   read: boolean;
 }
 
-export type SceneMode = '3d' | '2d';
-
 /** Une autorisation d'outil qui attend une réponse de l'utilisateur. */
 export interface PermissionAsk {
   reqId: string;
   agentId: AgentId;
   tool: string;
   summary: string;
-  ts: number;
-}
-
-/** Effets transitoires consommés par la scène 3D (paquet de délégation, poof de spawn). */
-export interface SceneEffect {
-  id: string;
-  kind: 'delegation' | 'spawn' | 'despawn';
-  from?: AgentId;
-  to?: AgentId;
-  agentId?: AgentId;
   ts: number;
 }
 
@@ -143,8 +131,6 @@ interface CockpitState {
   /** Tâches programmées. */
   routines: Routine[];
   artifacts: Record<AgentId, { name: string; content: string; ts: number }>;
-  effects: SceneEffect[];
-  sceneMode: SceneMode;
   /** Mode de travail : normal (local), opération, ClaudeCODE. */
   mode: BoowMode;
   setMode: (m: BoowMode) => void;
@@ -172,7 +158,6 @@ interface CockpitState {
 
   setTab: (t: TabId) => void;
   setSelectedAgent: (id: AgentId) => void;
-  setSceneMode: (m: SceneMode) => void;
   setConnected: (c: boolean) => void;
   setPalette: (o: boolean) => void;
   togglePalette: () => void;
@@ -313,14 +298,9 @@ const modeInitial: BoowMode = ((): BoowMode => {
 const etatInitialSessions = etatSessions(modeInitial);
 
 const ACTIVITY_CAP = 200;
-const EFFECT_CAP = 16;
 
 function pushActivity(arr: ActivityItem[], item: Omit<ActivityItem, 'id' | 'ts'>): ActivityItem[] {
   return [{ id: uid(), ts: Date.now(), ...item }, ...arr].slice(0, ACTIVITY_CAP);
-}
-
-function pushEffect(arr: SceneEffect[], item: Omit<SceneEffect, 'id' | 'ts'>): SceneEffect[] {
-  return [{ id: uid(), ts: Date.now(), ...item }, ...arr].slice(0, EFFECT_CAP);
 }
 
 export const useCockpit = create<CockpitState>((set) => ({
@@ -341,8 +321,6 @@ export const useCockpit = create<CockpitState>((set) => ({
   operations: [],
   routines: [],
   artifacts: {},
-  effects: [],
-  sceneMode: '3d',
   mode: modeInitial,
   setMode: (m) =>
     set((s) => {
@@ -419,7 +397,6 @@ export const useCockpit = create<CockpitState>((set) => ({
 
   setTab: (t) => set({ tab: t }),
   setSelectedAgent: (id) => set({ selectedAgent: id }),
-  setSceneMode: (m) => set({ sceneMode: m }),
   setConnected: (c) => set({ connected: c }),
   setPalette: (o) => set({ paletteOpen: o }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
@@ -573,7 +550,6 @@ export const useCockpit = create<CockpitState>((set) => ({
 
         case 'agent.delegation':
           return {
-            effects: pushEffect(s.effects, { kind: 'delegation', from: e.from, to: e.to }),
             activity: pushActivity(s.activity, {
               kind: 'delegation',
               text: `${nameOf(e.from)} délègue à ${nameOf(e.to)}${e.label ? ` : ${e.label}` : ''}`,
@@ -581,40 +557,6 @@ export const useCockpit = create<CockpitState>((set) => ({
               accent: accentOf(e.from),
             }),
           };
-
-        case 'agent.spawn': {
-          const agents = s.agents.some((a) => a.id === e.child.id)
-            ? s.agents
-            : [...s.agents, e.child];
-          return {
-            agents,
-            states: {
-              ...s.states,
-              [e.child.id]: { id: e.child.id, state: 'spawning', since: Date.now() },
-            },
-            effects: pushEffect(s.effects, { kind: 'spawn', agentId: e.child.id }),
-            activity: pushActivity(s.activity, {
-              kind: 'spawn',
-              text: `${nameOf(e.parent)} invoque ${e.child.name}`,
-              agentId: e.child.id,
-              accent: e.child.accent,
-            }),
-          };
-        }
-
-        case 'agent.despawn': {
-          const label = nameOf(e.id);
-          const { [e.id]: _drop, ...states } = s.states;
-          return {
-            agents: s.agents.filter((a) => a.id !== e.id),
-            states,
-            effects: pushEffect(s.effects, { kind: 'despawn', agentId: e.id }),
-            activity: pushActivity(s.activity, {
-              kind: 'despawn',
-              text: `${label} s'efface`,
-            }),
-          };
-        }
 
         case 'task.update': {
           const exists = s.tasks.some((t) => t.id === e.task.id);
