@@ -137,7 +137,7 @@ interface Config {
 }
 
 export function Reglages() {
-  const agents = useCockpit((s) => s.agents.filter((a) => a.kind !== 'subagent'));
+  const agents = useCockpit((s) => s.agents);
   const system = useCockpit((s) => s.system);
   const notif = useCockpit((s) => s.notifEnabled);
   const setNotif = useCockpit((s) => s.setNotif);

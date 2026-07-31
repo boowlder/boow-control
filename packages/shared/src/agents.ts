@@ -5,9 +5,7 @@ export type AgentId = string;
 export type AgentKind =
   | 'orchestrator' // Hermes — le capitaine
   | 'engineer' // Claude Code — l'ingénieur
-  | 'designer' // Claude Design — l'artiste
-  | 'brain' // Qwen local
-  | 'subagent'; // mini-robots éphémères
+  | 'brain'; // Qwen local
 
 export type AgentProvider =
   | 'claude-code'

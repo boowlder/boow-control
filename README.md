@@ -104,8 +104,8 @@ documented in [`.env.example`](.env.example). Runtime data (installed connectors
 search index, secrets) lives **outside** the repo (`~/.boow`, `~/.hermes`) and is
 never versioned.
 
-> This public repo does **not** include model weights (`.gguf`), decorative 3D
-> assets, or any personal data — the app starts fine without them.
+> This public repo does **not** include model weights (`.gguf`) or any personal
+> data — the app starts fine without them.
 
 ---
 
@@ -166,8 +166,8 @@ Claude Code et un Chrome en mode debug pour la recherche web. Tout est optionnel
 et documenté dans [`.env.example`](.env.example). Les données de fonctionnement
 (connecteurs, index, secrets) vivent **hors du dépôt** (`~/.boow`, `~/.hermes`).
 
-> Ce dépôt public **n'inclut pas** : les poids de modèles (`.gguf`), les
-> ressources 3D décoratives, ni aucune donnée personnelle.
+> Ce dépôt public **n'inclut pas** : les poids de modèles (`.gguf`) ni aucune
+> donnée personnelle.
 
 ---
 

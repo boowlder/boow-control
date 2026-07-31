@@ -29,7 +29,7 @@ export function CommandPalette() {
   const setTab = useCockpit((s) => s.setTab);
   const setMode = useCockpit((s) => s.setMode);
   const demarrer = useCockpit((s) => s.demarrerSession);
-  const agents = useCockpit((s) => s.agents.filter((a) => a.kind !== 'subagent'));
+  const agents = useCockpit((s) => s.agents);
   const [q, setQ] = useState('');
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);

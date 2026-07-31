@@ -100,12 +100,6 @@ export class Registry {
     this.bus.emit({ t: 'agent.state', id, state, detail, taskId, since: next.since });
   }
 
-  // Sous-agents éphémères (animations spawn / despawn).
-  addSubagent(meta: AgentMeta): void {
-    this.agents.set(meta.id, meta);
-    this.states.set(meta.id, { id: meta.id, state: 'spawning', since: Date.now() });
-  }
-
   removeAgent(id: string): void {
     this.agents.delete(id);
     this.states.delete(id);

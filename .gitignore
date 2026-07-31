@@ -8,3 +8,21 @@ dist/
 
 # Le gabarit d'exemple, lui, est versionné :
 !.env.example
+
+# Poids de modèles & gros binaires
+*.gguf
+models/
+
+# Bases de données locales
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets / clés (jamais versionnés)
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
