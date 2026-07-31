@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "boow control — cockpit d'orchestration d'agents IA",
+  "license": "MIT",
   "engines": {
     "node": ">=22"
   },

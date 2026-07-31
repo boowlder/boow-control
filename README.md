@@ -171,6 +171,13 @@ et documenté dans [`.env.example`](.env.example). Les données de fonctionnemen
 
 ---
 
+## License · Licence
+
+[MIT](LICENSE) — free to use, modify and share.
+*[MIT](LICENSE) — libre d'utilisation, de modification et de partage.*
+
+---
+
 <div align="center">
 
 *Architecture & design by the author. Code written with the help of AI coding
